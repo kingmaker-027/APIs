@@ -1,0 +1,76 @@
+
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Nose API</title>
+  </head>
+  <body>
+    <h1>Nose Landmarks</h1>
+    <img src="{{ url_for('video_feed') }}" width="640" height="480">
+    <br>
+    <button onclick="capture()">Capture Image</button>
+    <br>
+    <img id="captured-image">
+    <br>
+    <button onclick="detect()">Detect_Landmarks</button>
+    <br>
+    <img id="landmarks-image">
+    <br>
+    <button onclick="display()">Results</button>
+    <br>
+    <div id="dataframe"></div>
+    <br>
+    <script>
+      function capture() {
+        var xhr = new XMLHttpRequest();
+        xhr.open('GET', '{{ url_for("capture_image") }}', true);
+        xhr.responseType = 'blob';
+        xhr.onload = function(e) {
+          if (this.status == 200) {
+            var blob = this.response;
+            var img = document.getElementById('captured-image');
+            img.onload = function(e) {
+              window.URL.revokeObjectURL(img.src);
+            };
+            img.src = window.URL.createObjectURL(blob);
+            var landmarksImg = document.getElementById('landmarks-image');
+            landmarksImg.src = "";
+            var dataframeDiv = document.getElementById('dataframe');
+            dataframeDiv.innerHTML = "";
+          }
+        };
+        xhr.send();
+      }
+      function detect() {
+        var xhr = new XMLHttpRequest();
+        xhr.open('GET', '{{ url_for("detect_landmarks") }}', true);
+        xhr.responseType = 'blob';
+        xhr.onload = function(e) {
+          if (this.status == 200) {
+            var blob = this.response;
+            var img = document.getElementById('landmarks-image');
+            img.onload = function(e) {
+              window.URL.revokeObjectURL(img.src);
+            };
+            img.src = window.URL.createObjectURL(blob);
+            var dataframeDiv = document.getElementById('dataframe');
+            dataframeDiv.innerHTML = "";
+          }
+        };
+        xhr.send();
+      }
+      function display() {
+        var xhr = new XMLHttpRequest();
+        xhr.open('GET', '{{ url_for("display_dataframe") }}', true);
+        xhr.onload = function(e) {
+          if (this.status == 200) {
+            var html = this.responseText;
+            var dataframeDiv = document.getElementById('dataframe');
+            dataframeDiv.innerHTML = html;
+          }
+        };
+        xhr.send();
+      }
+    </script>
+  </body>
+</html>
